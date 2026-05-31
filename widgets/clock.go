@@ -7,6 +7,8 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
+type ClockTickMsg time.Time
+
 // ClockWidget displays the current time and date
 type ClockWidget struct {
 	time time.Time
@@ -18,15 +20,15 @@ func NewClockWidget() ClockWidget {
 
 // Init returns the first tick command
 func (c ClockWidget) Init() tea.Cmd {
-	return tick(time.Second)
+	return clockTick(time.Second)
 }
 
 // Update handles tick messages to refresh the time
 func (c ClockWidget) Update(msg tea.Msg) (ClockWidget, tea.Cmd) {
 	switch msg.(type) {
-	case tickMsg:
+	case ClockTickMsg:
 		c.time = time.Now()
-		return c, tick(time.Second)
+		return c, clockTick(time.Second)
 	}
 	return c, nil
 }
@@ -48,4 +50,10 @@ func (c ClockWidget) View() string {
 		Padding(1, 3)
 
 	return clockWidgetStyle.Render(lipgloss.JoinVertical(lipgloss.Center, dateStr, timStr))
+}
+
+func clockTick(duration time.Duration) tea.Cmd {
+	return tea.Tick(duration, func(t time.Time) tea.Msg {
+		return ClockTickMsg(t)
+	})
 }
