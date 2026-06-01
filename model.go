@@ -8,21 +8,23 @@ import (
 )
 
 type model struct {
-	clock  widgets.ClockWidget
-	system widgets.SystemWidget
-	height int
-	width  int
+	clock   widgets.ClockWidget
+	system  widgets.SystemWidget
+	weather widgets.WeatherWidget
+	height  int
+	width   int
 }
 
 func NewModel() model {
 	return model{
-		clock:  widgets.NewClockWidget(),
-		system: widgets.NewSystemWidget(),
+		clock:   widgets.NewClockWidget(),
+		system:  widgets.NewSystemWidget(),
+		weather: widgets.NewWeatherWidget(),
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return tea.Batch(m.clock.Init(), m.system.Init())
+	return tea.Batch(m.clock.Init(), m.system.Init(), m.weather.Init())
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -44,6 +46,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		updatedSystem, systemCmd := m.system.Update(msg)
 		m.system = updatedSystem
 		cmds = append(cmds, systemCmd)
+	case widgets.WeatherTickMsg:
+		updatedWeather, weatherCmd := m.weather.Update(msg)
+		m.weather = updatedWeather
+		cmds = append(cmds, weatherCmd)
 	}
 
 	return m, tea.Batch(cmds...)
@@ -52,12 +58,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() tea.View {
 	row1 := lipgloss.JoinHorizontal(
 		lipgloss.Top, m.system.View(),
-		lipgloss.PlaceHorizontal(m.width-lipgloss.Width(m.system.View()), lipgloss.Right, m.clock.View()),
+		lipgloss.PlaceHorizontal(m.width-lipgloss.Width(m.system.View()), lipgloss.Right, m.weather.View()),
 	)
+
+	row2 := lipgloss.PlaceHorizontal(m.width, lipgloss.Right, m.clock.View())
 
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		row1,
-		lipgloss.PlaceVertical(m.height-lipgloss.Height(row1), lipgloss.Bottom, lipgloss.NewStyle().Render("\nPress q to quit")),
+		row2,
+		lipgloss.PlaceVertical(m.height-lipgloss.Height(row1)-lipgloss.Height(row2), lipgloss.Bottom, lipgloss.NewStyle().Render("\nPress q to quit")),
 	)
 
 	v := tea.NewView(content)
