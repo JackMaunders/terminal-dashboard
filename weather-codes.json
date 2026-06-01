@@ -3,7 +3,7 @@
         "day": {
             "description": "Sunny",
             "image": "http://openweathermap.org/img/wn/01d@2x.png",
-            "ascii": "   \\   /\n    .-.\n \u2015 (   ) \u2015\n    `-\u2019\n   /   \\\\"
+            "ascii": "   \\   /\n    .-.\n \u2015 (   ) \u2015\n    `-\u2019\n   /   \\"
         },
         "night": {
             "description": "Clear",
@@ -15,7 +15,7 @@
         "day": {
             "description": "Mainly Sunny",
             "image": "http://openweathermap.org/img/wn/01d@2x.png",
-            "ascii": "   \\   /\n    .-.\n \u2015 (   ) \u2015\n    `-\u2019\n   /   \\\\"
+            "ascii": "   \\   /\n    .-.\n \u2015 (   ) \u2015\n    `-\u2019\n   /   \\"
         },
         "night": {
             "description": "Mainly Clear",
