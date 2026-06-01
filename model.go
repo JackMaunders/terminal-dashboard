@@ -57,16 +57,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() tea.View {
 	row1 := lipgloss.JoinHorizontal(
-		lipgloss.Top, m.system.View(),
+		lipgloss.Top,
+		m.system.View(),
 		lipgloss.PlaceHorizontal(m.width-lipgloss.Width(m.system.View()), lipgloss.Right, m.weather.View()),
 	)
 
-	row2 := lipgloss.PlaceHorizontal(m.width, lipgloss.Right, m.clock.View())
+	quitMessage := lipgloss.NewStyle().Render("\nPress q to quit")
+
+	row2 := lipgloss.JoinHorizontal(
+		lipgloss.Bottom,
+		quitMessage,
+		lipgloss.PlaceHorizontal(m.width-lipgloss.Width(quitMessage), lipgloss.Right, m.clock.View()),
+	)
 
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		row1,
-		row2,
-		lipgloss.PlaceVertical(m.height-lipgloss.Height(row1)-lipgloss.Height(row2), lipgloss.Bottom, lipgloss.NewStyle().Render("\nPress q to quit")),
+		lipgloss.PlaceVertical(m.height-lipgloss.Height(row1), lipgloss.Bottom, row2),
 	)
 
 	v := tea.NewView(content)

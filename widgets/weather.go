@@ -45,12 +45,12 @@ type locationResponse struct {
 
 type weatherResponse struct {
 	Current struct {
-		Temperature   float64 `json:"temperature"`
+		Temperature   float64 `json:"temperature_2m"`
 		Precipitation float64 `json:"precipitation"`
 		WeatherCode   int     `json:"weathercode"`
-		WindSpeed     float64 `json:"windspeed"`
+		WindSpeed     float64 `json:"wind_speed_10m"`
 		IsDay         int     `json:"is_day"`
-	} `json:"current_weather"`
+	} `json:"current"`
 }
 
 var weatherCodeDescriptions map[string]weatherCodeDesc
@@ -134,7 +134,7 @@ func getLocation() (locationResponse, error) {
 }
 
 func getWeather(location location) (weatherResponse, error) {
-	url := fmt.Sprintf("https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&current_weather=true", location.Latitude, location.Longitude)
+	url := fmt.Sprintf("https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&current=temperature_2m,is_day,precipitation,weather_code,wind_speed_10m&wind_speed_unit=mph", location.Latitude, location.Longitude)
 	resp, err := http.Get(url)
 	if err != nil {
 		return weatherResponse{}, err
@@ -228,6 +228,11 @@ func (w WeatherWidget) View() string {
 		Bold(true).
 		Foreground(lipgloss.BrightMagenta)
 
+	conditionStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.BrightWhite).
+		Align(lipgloss.Center).
+		Width(12)
+
 	labelStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.BrightWhite)
 
@@ -238,10 +243,10 @@ func (w WeatherWidget) View() string {
 
 	locationStr := cityStyle.Render(locationText)
 	tempStr := tempStyle.Render(fmt.Sprintf("%.1f°C", w.weather.Temperature))
-	conditionStr := labelStyle.Render(weatherDescription(w.weather.WeatherCode, w.weather.IsDay))
+	conditionStr := conditionStyle.Render(weatherDescription(w.weather.WeatherCode, w.weather.IsDay))
 	iconStr := labelStyle.Render(weatherIcon(w.weather.WeatherCode, w.weather.IsDay))
 	precipStr := labelStyle.Render(fmt.Sprintf("Precip: %.1f mm", w.weather.Precipitation))
-	windStr := labelStyle.Render(fmt.Sprintf("Wind: %.1f m/s", w.weather.WindSpeed))
+	windStr := labelStyle.Render(fmt.Sprintf("Wind: %.1f mp/h", w.weather.WindSpeed))
 
 	leftColumn := lipgloss.JoinVertical(
 		lipgloss.Left,

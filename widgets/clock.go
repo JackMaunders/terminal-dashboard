@@ -45,11 +45,7 @@ func (c ClockWidget) View() string {
 	timStr := timeStyle.Render(c.time.Format("15:04:05"))
 	dateStr := dateStyle.Render(c.time.Format("Monday, 2 January 2006"))
 
-	clockWidgetStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		Padding(1, 3)
-
-	return clockWidgetStyle.Render(lipgloss.JoinVertical(lipgloss.Center, dateStr, timStr))
+	return lipgloss.JoinHorizontal(lipgloss.Center, dateStr, " | ", timStr)
 }
 
 func clockTick(duration time.Duration) tea.Cmd {
