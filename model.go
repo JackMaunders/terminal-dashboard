@@ -58,7 +58,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() tea.View {
-	quitMessage := lipgloss.NewStyle().Render("\nPress q to quit")
+	quitMessage := lipgloss.PlaceVertical(m.height-lipgloss.Height(m.pokemon.View()), lipgloss.Bottom, lipgloss.NewStyle().Render("\nPress q to quit"))
 
 	leftColumn := lipgloss.JoinVertical(lipgloss.Left, m.pokemon.View(), quitMessage)
 
