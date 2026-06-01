@@ -111,26 +111,19 @@ func weatherDescription(code int, isDay int) string {
 }
 
 func getLocation() (locationResponse, error) {
-	// Save on API calls during development by returning a hardcoded location
-	return locationResponse{
-		City:      "Bracknell",
-		Latitude:  51.4036,
-		Longitude: -0.7618,
-	}, nil
+	resp, err := http.Get("https://ipapi.co/json/")
+	if err != nil {
+		return locationResponse{}, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return locationResponse{}, fmt.Errorf("failed to fetch location: status code %d", resp.StatusCode)
+	}
+	defer resp.Body.Close()
 
-	// resp, err := http.Get("https://ipapi.co/json/")
-	// if err != nil {
-	// 	return locationResponse{}, err
-	// }
-	// if resp.StatusCode != http.StatusOK {
-	// 	return locationResponse{}, fmt.Errorf("failed to fetch location: status code %d", resp.StatusCode)
-	// }
-	// defer resp.Body.Close()
+	var location locationResponse
+	err = json.NewDecoder(resp.Body).Decode(&location)
 
-	// var location locationResponse
-	// err = json.NewDecoder(resp.Body).Decode(&location)
-
-	// return location, err
+	return location, err
 }
 
 func getWeather(location location) (weatherResponse, error) {
@@ -143,7 +136,6 @@ func getWeather(location location) (weatherResponse, error) {
 
 	var weather weatherResponse
 	err = json.NewDecoder(resp.Body).Decode(&weather)
-	log.Printf("Fetched weather: %+v", weather)
 	return weather, err
 }
 

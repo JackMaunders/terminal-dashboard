@@ -9,6 +9,7 @@ import (
 
 type model struct {
 	clock   widgets.ClockWidget
+	pokemon widgets.PokemonWidget
 	system  widgets.SystemWidget
 	weather widgets.WeatherWidget
 	height  int
@@ -18,6 +19,7 @@ type model struct {
 func NewModel() model {
 	return model{
 		clock:   widgets.NewClockWidget(),
+		pokemon: widgets.NewPokemonWidget(),
 		system:  widgets.NewSystemWidget(),
 		weather: widgets.NewWeatherWidget(),
 	}
@@ -56,23 +58,34 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() tea.View {
-	row1 := lipgloss.JoinHorizontal(
-		lipgloss.Top,
-		m.system.View(),
-		lipgloss.PlaceHorizontal(m.width-lipgloss.Width(m.system.View()), lipgloss.Right, m.weather.View()),
-	)
-
 	quitMessage := lipgloss.NewStyle().Render("\nPress q to quit")
 
-	row2 := lipgloss.JoinHorizontal(
+	leftColumn := lipgloss.JoinVertical(lipgloss.Left, m.pokemon.View(), quitMessage)
+
+	leftWidth := lipgloss.Width(leftColumn)
+	rightWidth := m.width - leftWidth
+
+	weatherBox := lipgloss.PlaceHorizontal(rightWidth, lipgloss.Right, m.weather.View())
+
+	systemBox := lipgloss.PlaceHorizontal(rightWidth, lipgloss.Right, m.system.View())
+	systemBox = lipgloss.PlaceVertical(
+		m.height-lipgloss.Height(weatherBox)-lipgloss.Height(m.clock.View()),
 		lipgloss.Bottom,
-		quitMessage,
-		lipgloss.PlaceHorizontal(m.width-lipgloss.Width(quitMessage), lipgloss.Right, m.clock.View()),
+		systemBox,
 	)
 
-	content := lipgloss.JoinVertical(lipgloss.Left,
-		row1,
-		lipgloss.PlaceVertical(m.height-lipgloss.Height(row1), lipgloss.Bottom, row2),
+	clockBox := lipgloss.PlaceHorizontal(rightWidth, lipgloss.Right, m.clock.View())
+	clockBox = lipgloss.PlaceVertical(
+		m.height-lipgloss.Height(weatherBox)-lipgloss.Height(systemBox),
+		lipgloss.Bottom,
+		clockBox,
+	)
+
+	rightColumn := lipgloss.JoinVertical(lipgloss.Top, weatherBox, systemBox, clockBox)
+
+	content := lipgloss.JoinHorizontal(lipgloss.Left,
+		leftColumn,
+		rightColumn,
 	)
 
 	v := tea.NewView(content)

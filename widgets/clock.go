@@ -9,7 +9,6 @@ import (
 
 type ClockTickMsg time.Time
 
-// ClockWidget displays the current time and date
 type ClockWidget struct {
 	time time.Time
 }
@@ -18,12 +17,10 @@ func NewClockWidget() ClockWidget {
 	return ClockWidget{time: time.Now()}
 }
 
-// Init returns the first tick command
 func (c ClockWidget) Init() tea.Cmd {
 	return clockTick(time.Second)
 }
 
-// Update handles tick messages to refresh the time
 func (c ClockWidget) Update(msg tea.Msg) (ClockWidget, tea.Cmd) {
 	switch msg.(type) {
 	case ClockTickMsg:
@@ -33,7 +30,6 @@ func (c ClockWidget) Update(msg tea.Msg) (ClockWidget, tea.Cmd) {
 	return c, nil
 }
 
-// View renders the clock
 func (c ClockWidget) View() string {
 	timeStyle := lipgloss.NewStyle().
 		Bold(true).

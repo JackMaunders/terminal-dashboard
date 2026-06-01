@@ -88,9 +88,9 @@ func (s SystemWidget) View() string {
 	const GiB = 1 << 30
 
 	columns := []table.Column{
-		{Title: "CPU Usage", Width: 20},
-		{Title: "Memory Usage", Width: 20},
-		{Title: "Disk Usage", Width: 20},
+		{Title: "CPU Usage", Width: 18},
+		{Title: "Memory Usage", Width: 18},
+		{Title: "Disk Usage", Width: 18},
 	}
 	rows := []table.Row{
 		{
@@ -104,7 +104,7 @@ func (s SystemWidget) View() string {
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithHeight(7),
-		table.WithWidth(100),
+		table.WithWidth(60),
 	)
 
 	ts := table.DefaultStyles()
