@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	tea "charm.land/bubbletea/v2"
@@ -110,20 +111,71 @@ func weatherDescription(code int, isDay int) string {
 	return "Unknown conditions"
 }
 
-func getLocation() (locationResponse, error) {
+func getLocationFromIpApi() (locationResponse, error) {
 	resp, err := http.Get("https://ipapi.co/json/")
 	if err != nil {
 		return locationResponse{}, err
 	}
-	if resp.StatusCode != http.StatusOK {
-		return locationResponse{}, fmt.Errorf("failed to fetch location: status code %d", resp.StatusCode)
-	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return locationResponse{}, fmt.Errorf("ipapi.co returned status code %d", resp.StatusCode)
+	}
 
 	var location locationResponse
 	err = json.NewDecoder(resp.Body).Decode(&location)
-
 	return location, err
+}
+
+func getLocationFromIpInfo() (locationResponse, error) {
+	resp, err := http.Get("https://ipinfo.io/json")
+	if err != nil {
+		return locationResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return locationResponse{}, fmt.Errorf("ipinfo.io returned status code %d", resp.StatusCode)
+	}
+
+	var ipInfoResponse struct {
+		City      string `json:"city"`
+		Loc       string `json:"loc"`
+		Latitude  float64
+		Longitude float64
+	}
+	err = json.NewDecoder(resp.Body).Decode(&ipInfoResponse)
+	if err != nil {
+		return locationResponse{}, err
+	}
+
+	// Parse coordinates from "latitude,longitude" format
+	parts := strings.Split(ipInfoResponse.Loc, ",")
+	if len(parts) == 2 {
+		lat, errLat := strconv.ParseFloat(strings.TrimSpace(parts[0]), 64)
+		lon, errLon := strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
+		if errLat == nil && errLon == nil {
+			ipInfoResponse.Latitude = lat
+			ipInfoResponse.Longitude = lon
+		}
+	}
+
+	return locationResponse{
+		City:      ipInfoResponse.City,
+		Latitude:  ipInfoResponse.Latitude,
+		Longitude: ipInfoResponse.Longitude,
+	}, nil
+}
+
+func getLocation() (locationResponse, error) {
+	// Try ipap.co first
+	location, err := getLocationFromIpApi()
+	if err == nil {
+		return location, nil
+	}
+
+	// Retry with ipinfo.io
+	return getLocationFromIpInfo()
 }
 
 func getWeather(location location) (weatherResponse, error) {
