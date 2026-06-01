@@ -6,8 +6,6 @@ A terminal-based dashboard built with Go and Bubble Tea, displaying real-time sy
 
 ![Dashboard Screenshot](./screen.png)
 
-*Add your screenshot here*
-
 ## Prerequisites
 
 - Go 1.20 or later
